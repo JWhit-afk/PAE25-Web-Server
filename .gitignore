@@ -1,6 +1,5 @@
 node_modules
-mongodb/data/*
-mongodb/logs/*
+
 
 !mongodb/data/.gitkeep
 !mongodb/logs/.gitkeep
