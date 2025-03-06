@@ -7,7 +7,7 @@ import { DBResult, get_chat_document } from "../../database"
  * @returns data.chatName (string)
  */
 export const get_chat_name_handler = async (data: any) => {
-    let response: interface_result = {reply: interface_status.failure}
+    let response = {reply: interface_status.failure}
     let chatDocument = await get_chat_document(data.chatID)
 
     if (chatDocument == DBResult.DBRecordNotFound) {
@@ -15,6 +15,7 @@ export const get_chat_name_handler = async (data: any) => {
     }
 
     return {
+        id: -1,
         reply: interface_status.success,
         data: {
             chatName: chatDocument.name

@@ -7,7 +7,7 @@ import { DBResult, get_chat_document, get_message_document } from "../../databas
  * @returns data.prompts (string) data.replies (string)
  */
 export const get_chat_log_handler = async (data: any) => {
-    let response: interface_result = {reply: interface_status.failure}
+    let response = {reply: interface_status.failure}
     let chatDocument = await get_chat_document(data.chatID)
     
     if (chatDocument == DBResult.DBRecordNotFound) {
@@ -32,13 +32,12 @@ export const get_chat_log_handler = async (data: any) => {
         replies.push(id)
     }
 
-    response = {
+    return {
+        id: -1,
         reply: interface_status.success,
         data: {
             prompts: prompts,
             replies: replies
         }
     }
-
-    return response;
 }

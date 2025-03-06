@@ -35,8 +35,11 @@ const websocket_server = new WebSocketServer({ port: 8080 });
 // handle connections -> called when a connection is attempted
 websocket_server.on("connection", (client_connection: WebSocket) => {
     // when data is received on the connection -> construct the og object from JSON -> pass to relevant handler
+    console.log("User connected")
     client_connection.on("message", async (message: string) => {
+        console.log("Data Received")
         let request = JSON.parse(message)
+        console.log("Handling ", request)
         handle_client_request(request)
         .then((result) => {
             // then construct response by adding request id back in send final result to client
@@ -45,6 +48,7 @@ websocket_server.on("connection", (client_connection: WebSocket) => {
                 reply: result.reply,
                 data: result.data
             }
+            console.log("Sending ", result)
             client_connection.send(JSON.stringify(response))
         })
     })
