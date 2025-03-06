@@ -10,7 +10,8 @@
 import { MongoClient } from "mongodb";
 
 // connects to the database (needs to be running before)
-const database = new MongoClient("mongodb://localhost:27017/PAE25").db()
+const database = new MongoClient("mongodb://0.0.0.0:27017/PAE25").db()
+//const database = new MongoClient("mongodb://localhost:27017/PAE25").db()
 
 // function for setting up the database -> operation functions await this function to complete
 const database_initialisation = (async () => {

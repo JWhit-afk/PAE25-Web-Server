@@ -37,7 +37,6 @@ websocket_server.on("connection", (client_connection: WebSocket) => {
     // when data is received on the connection -> construct the og object from JSON -> pass to relevant handler
     console.log("User connected")
     client_connection.on("message", async (message: string) => {
-        console.log("Data Received")
         let request = JSON.parse(message)
         console.log("Handling ", request)
         handle_client_request(request)
@@ -48,7 +47,7 @@ websocket_server.on("connection", (client_connection: WebSocket) => {
                 reply: result.reply,
                 data: result.data
             }
-            console.log("Sending ", result)
+            console.log("Sending ", response)
             client_connection.send(JSON.stringify(response))
         })
     })

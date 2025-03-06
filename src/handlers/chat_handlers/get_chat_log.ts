@@ -22,14 +22,14 @@ export const get_chat_log_handler = async (data: any) => {
         if (messageDocument == DBResult.DBRecordNotFound) {
             return response
         }
-        prompts.push(id)
+        prompts.push(messageDocument.content)
     }
     for (let id of chatDocument.replyIds) {
         let messageDocument = await get_message_document(id)
         if (messageDocument == DBResult.DBRecordNotFound) {
             return response
         }
-        replies.push(id)
+        replies.push(messageDocument.content)
     }
 
     return {
