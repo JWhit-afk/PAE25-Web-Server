@@ -135,13 +135,13 @@ export const enum DBResult {
 
 export const get_message_document = async (messageID: any) => {
   await database_initialisation;
-  return database.collection(DBCollections.chats).findOne(messageID)
+  return database.collection(DBCollections.message).findOne(messageID)
   .then((messageDocument) => messageDocument || DBResult.DBRecordNotFound)
 };
 
 // returns te promptIDs and replyIDs contained in the chat
 export const get_chat_document = async (chatID: any) => {
   await database_initialisation;
-  return database.collection(DBCollections.message).findOne(chatID)
+  return database.collection(DBCollections.chats).findOne(chatID)
     .then((chatDocument => chatDocument || DBResult.DBRecordNotFound));
 };
