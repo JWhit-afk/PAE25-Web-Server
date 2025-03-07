@@ -23,7 +23,7 @@ const database_initialisation = (async () => {
                 bsonType: 'object',
                 required: [
                   'name',
-                  'studentId',
+                  'userId',
                   'promptIds',
                   'replyIds'
                 ],
@@ -31,7 +31,7 @@ const database_initialisation = (async () => {
                   name: {
                     bsonType: 'string'
                   },
-                  studentId: {
+                  userId: {
                     bsonType: 'objectId'
                   },
                   promptIds: {
@@ -68,14 +68,15 @@ const database_initialisation = (async () => {
 
     // creates student table
     .then(async () => {
-        await database.createCollection("student", {
+        await database.createCollection("user", {
             validator: {
                 $jsonSchema: {
                     bsonType: 'object',
                     required: [
                       'name',
                       'chats',
-                      'supervisor'
+                      'username',
+                      'password'
                     ],
                     properties: {
                       name: {
@@ -85,32 +86,11 @@ const database_initialisation = (async () => {
                         bsonType: 'array',
                         description: 'array of chat ids'
                       },
-                      supervisor: {
-                        bsonType: 'objectId'
-                      }
-                    }
-                  }
-            }
-        })
-    })
-
-    // creates supervisor table
-    .then(async () => {
-        await database.createCollection("supervisor", {
-            validator: {
-                $jsonSchema: {
-                    bsonType: 'object',
-                    required: [
-                      'name',
-                      'studentIds'
-                    ],
-                    properties: {
-                      name: {
+                      username: {
                         bsonType: 'string'
                       },
-                      studentIds: {
-                        bsonType: 'array',
-                        description: 'array of studentIds supervised'
+                      password: {
+                        bsonType: 'string'
                       }
                     }
                   }
@@ -123,16 +103,40 @@ const database_initialisation = (async () => {
 const enum DBCollections {
   chats = "chats",
   message = "message",
-  student = "student",
-  supervisor = "supervisor"
+  user = "user"
 };
 
 // enum of DB results
 export const enum DBResult {
   DBSuccess,
+  DBUserAdded,
+  DBUserNotAdded,
+  DBUserNotFound,
   DBRecordNotFound
 };
 
+export const add_user = async (name: string, username: string, password: string) => {
+  await database_initialisation;
+  return database.collection(DBCollections.user).insertOne(
+    {
+      name: name,
+      chats: [],
+      username: username,
+      password: password
+    }
+  )
+  .then ((userDocument => userDocument || DBResult.DBUserNotAdded))
+}
+
+export const get_user_document = async (username: string) => {
+  await database_initialisation;
+  return database.collection(DBCollections.user).findOne(
+    {
+      username: username
+    }
+  )
+  .then ((userDocument) => userDocument || DBResult.DBUserNotFound)
+}
 
 export const get_message_document = async (messageID: any) => {
   await database_initialisation;
