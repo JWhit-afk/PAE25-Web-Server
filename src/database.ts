@@ -7,7 +7,7 @@
  * 
  */
 
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 
 // connects to the database (needs to be running before)
 const database = new MongoClient("mongodb://0.0.0.0:27017/PAE25").db()
@@ -145,8 +145,12 @@ export const get_message_document = async (messageID: any) => {
 };
 
 // returns te promptIDs and replyIDs contained in the chat
-export const get_chat_document = async (chatID: any) => {
+export const get_chat_document = async (chatID: ObjectId) => {
+  console.log(chatID)
   await database_initialisation;
-  return database.collection(DBCollections.chats).findOne(chatID)
+  console.log(chatID)
+  return database.collection(DBCollections.chats).findOne({
+    _id: new ObjectId(chatID)
+  })
     .then((chatDocument => chatDocument || DBResult.DBRecordNotFound));
 };
