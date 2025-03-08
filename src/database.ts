@@ -7,7 +7,7 @@
  * 
  */
 
-import { MongoClient, ObjectId } from "mongodb";
+import { Document, MongoClient, ObjectId, UpdateFilter } from "mongodb";
 
 // connects to the database (needs to be running before)
 const database = new MongoClient("mongodb://0.0.0.0:27017/PAE25").db()
@@ -23,16 +23,12 @@ const database_initialisation = (async () => {
                 bsonType: 'object',
                 required: [
                   'name',
-                  'userId',
                   'promptIds',
                   'replyIds'
                 ],
                 properties: {
                   name: {
                     bsonType: 'string'
-                  },
-                  userId: {
-                    bsonType: 'objectId'
                   },
                   promptIds: {
                     bsonType: 'array',
@@ -109,6 +105,7 @@ const enum DBCollections {
 // enum of DB results
 export const enum DBResult {
   DBSuccess,
+  DBDocumentUpdateError,
   DBUserAdded,
   DBUserNotAdded,
   DBUserNotFound,
@@ -117,8 +114,7 @@ export const enum DBResult {
 
 export const add_user = async (name: string, username: string, password: string) => {
   await database_initialisation;
-  return database.collection(DBCollections.user).insertOne(
-    {
+  return database.collection(DBCollections.user).insertOne({
       name: name,
       chats: [],
       username: username,
@@ -143,6 +139,31 @@ export const get_message_document = async (messageID: any) => {
   return database.collection(DBCollections.message).findOne(messageID)
   .then((messageDocument) => messageDocument || DBResult.DBRecordNotFound)
 };
+
+export const create_new_chat = async (name:string, username: string) => {
+  await database_initialisation;
+  // create the document
+  return await database.collection(DBCollections.chats).insertOne({
+    name: name,
+    promptIds: [],
+    replyIds: [],
+  })
+  // find the user that created it and append the new chat to their list
+  .then((result) => {
+    let pushop: Document= {
+      "$push": {chats: result.insertedId}
+    }
+    if (result != null) {
+      database.collection(DBCollections.user).findOneAndUpdate({
+        username: username
+      }, 
+      pushop )
+      return new ObjectId(result.insertedId)
+    } else {
+      return DBResult.DBDocumentUpdateError
+    }}
+  ) 
+}
 
 // returns te promptIDs and replyIDs contained in the chat
 export const get_chat_document = async (chatID: ObjectId) => {
