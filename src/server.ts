@@ -13,6 +13,8 @@ import { get_chat_log_handler } from "./handlers/chat_handlers/get_chat_log"
 import { get_user_handler } from "./handlers/user_handler/get_user";
 import { get_user_chats_handler } from "./handlers/user_handler/get_users_chats";
 import { add_chat_handler } from "./handlers/chat_handlers/add_chat";
+import { check_username_handler } from "./handlers/user_handler/check_username";
+import { add_user_handler } from "./handlers/user_handler/add_user";
 
 
 // maps the shared interface_route to the function that handles the request
@@ -21,8 +23,10 @@ const interface_route_handlers = new Map<any, any>([
     [interface_route.createChat, add_chat_handler],
 
     // user routes
+    [interface_route.createUser, add_user_handler],
     [interface_route.getUser, get_user_handler],
-    [interface_route.getUserChats, get_user_chats_handler]
+    [interface_route.getUserChats, get_user_chats_handler],
+    [interface_route.checkUsername, check_username_handler]
 ]);
 
 /**

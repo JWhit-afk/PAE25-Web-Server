@@ -69,7 +69,6 @@ const database_initialisation = (async () => {
                 $jsonSchema: {
                     bsonType: 'object',
                     required: [
-                      'name',
                       'chats',
                       'username',
                       'password'
@@ -112,10 +111,9 @@ export const enum DBResult {
   DBRecordNotFound
 };
 
-export const add_user = async (name: string, username: string, password: string) => {
+export const add_user = async (username: string, password: string) => {
   await database_initialisation;
   return database.collection(DBCollections.user).insertOne({
-      name: name,
       chats: [],
       username: username,
       password: password
