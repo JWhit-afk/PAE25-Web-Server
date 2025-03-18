@@ -1,5 +1,5 @@
 import { interface_status, interface_result } from "../../../../PAE25-Web-Server-Interface/shared_interface"
-import { DBResult, get_chat_document, get_message_document } from "../../database"
+import { DBResult, get_chat_document } from "../../database"
 
 /**
  * Returns the chat strings of the chatID requested
@@ -14,22 +14,25 @@ export const get_chat_log_handler = async (data: any) => {
         return response
     } 
 
+    // get the chat log minus the system prompt
+    chatDocument.chatLog.shift()
+    let chatLog = chatDocument.chatLog
+
     let prompts: string[] = []
     let replies: string[] = []
 
-    for (let id of chatDocument.promptIds) {
-        let messageDocument = await get_message_document(id)
-        if (messageDocument == DBResult.DBRecordNotFound) {
-            return response
+    let n = 0
+    for (let message of chatLog) {
+        if (n % 2 == 0) {
+            // then its a prompt
+            console.log(message)
+            prompts.push(message.content)
+        } else {
+            // then its a reply
+            console.log(message)
+            replies.push(message.content)
         }
-        prompts.push(messageDocument.content)
-    }
-    for (let id of chatDocument.replyIds) {
-        let messageDocument = await get_message_document(id)
-        if (messageDocument == DBResult.DBRecordNotFound) {
-            return response
-        }
-        replies.push(messageDocument.content)
+        n++
     }
 
     return {

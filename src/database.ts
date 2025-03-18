@@ -23,43 +23,19 @@ const database_initialisation = (async () => {
                 bsonType: 'object',
                 required: [
                   'name',
-                  'promptIds',
-                  'replyIds'
+                  'chatLog'
                 ],
                 properties: {
                   name: {
                     bsonType: 'string'
                   },
-                  promptIds: {
-                    bsonType: 'array',
-                    description: 'array of message IDs'
-                  },
-                  replyIds: {
+                  chatLog: {
                     bsonType: 'array',
                     description: 'array of message IDs'
                   }
                 }
               }
         }
-    })
-
-    // creates message table
-    .then(async () => {
-        await database.createCollection("message", {
-            validator: {
-                $jsonSchema: {
-                    bsonType: 'object',
-                    required: [
-                        'content'
-                    ],
-                    properties: {
-                        content: {
-                        bsonType: 'string'
-                        }
-                    }
-                    }
-                }
-            })
     })
 
     // creates student table
@@ -97,7 +73,6 @@ const database_initialisation = (async () => {
 // enum of the DBCollections -> cleaner and more consistent access than raw string
 const enum DBCollections {
   chats = "chats",
-  message = "message",
   user = "user"
 };
 
@@ -132,19 +107,12 @@ export const get_user_document = async (username: string) => {
   .then ((userDocument) => userDocument || DBResult.DBUserNotFound)
 }
 
-export const get_message_document = async (messageID: any) => {
-  await database_initialisation;
-  return database.collection(DBCollections.message).findOne(messageID)
-  .then((messageDocument) => messageDocument || DBResult.DBRecordNotFound)
-};
-
 export const create_new_chat = async (name:string, username: string) => {
   await database_initialisation;
   // create the document
   return await database.collection(DBCollections.chats).insertOne({
     name: name,
-    promptIds: [],
-    replyIds: [],
+    chatLog: []
   })
   // find the user that created it and append the new chat to their list
   .then((result) => {
@@ -163,7 +131,7 @@ export const create_new_chat = async (name:string, username: string) => {
   ) 
 }
 
-// returns te promptIDs and replyIDs contained in the chat
+// returns te chat doc
 export const get_chat_document = async (chatID: ObjectId) => {
   await database_initialisation;
   return database.collection(DBCollections.chats).findOne({
@@ -171,3 +139,18 @@ export const get_chat_document = async (chatID: ObjectId) => {
   })
     .then((chatDocument => chatDocument || DBResult.DBRecordNotFound));
 };
+
+// updates a chat document with the full chat log
+export const update_chat_log = async (chatID: ObjectId, chatLog) => {
+  await database_initialisation;
+  let result = database.collection(DBCollections.chats).findOneAndUpdate({
+    _id: new ObjectId(chatID)
+  },{
+    "$set": {chatLog: chatLog}
+  })
+  if (result != null) {
+    return DBResult.DBSuccess
+  } else {
+    return DBResult.DBRecordNotFound
+  }
+}

@@ -1,8 +1,8 @@
 /**
  * @file interface.ts
  * @author Jacob Whitbourn
- * @brief Main server script -> handles the clients requests
- * @version 1.0.0
+ * @brief Main server script -> handles the clients requests and sends requests to model 
+ * @version 2.0.0
  * @date 2024-10-2
  * 
  */
@@ -15,7 +15,7 @@ import { get_user_chats_handler } from "./handlers/user_handler/get_users_chats"
 import { add_chat_handler } from "./handlers/chat_handlers/add_chat";
 import { check_username_handler } from "./handlers/user_handler/check_username";
 import { add_user_handler } from "./handlers/user_handler/add_user";
-
+import { submit_message_handler } from "./handlers/model_handlers/submit_message";
 
 // maps the shared interface_route to the function that handles the request
 const interface_route_handlers = new Map<any, any>([
@@ -26,7 +26,8 @@ const interface_route_handlers = new Map<any, any>([
     [interface_route.createUser, add_user_handler],
     [interface_route.getUser, get_user_handler],
     [interface_route.getUserChats, get_user_chats_handler],
-    [interface_route.checkUsername, check_username_handler]
+    [interface_route.checkUsername, check_username_handler],
+    [interface_route.submitModelMessage, submit_message_handler]
 ]);
 
 /**
