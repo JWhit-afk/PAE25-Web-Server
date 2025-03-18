@@ -154,3 +154,18 @@ export const update_chat_log = async (chatID: ObjectId, chatLog) => {
     return DBResult.DBRecordNotFound
   }
 }
+
+export const update_chat_name = async (chatID: ObjectId, new_name: string) => {
+  console.log(new_name)
+  await database_initialisation;
+  let result = database.collection(DBCollections.chats).findOneAndUpdate({
+    _id: new ObjectId(chatID)
+  },{
+    "$set": {name: new_name}
+  })
+  if (result != null) {
+    return DBResult.DBSuccess
+  } else {
+    return DBResult.DBRecordNotFound
+  }
+}

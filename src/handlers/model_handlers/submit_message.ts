@@ -1,5 +1,5 @@
 import { interface_status, interface_result, interface_route } from "../../../../PAE25-Web-Server-Interface/shared_interface"
-import { DBResult, get_chat_document, update_chat_log } from "../../database"
+import { DBResult, get_chat_document, update_chat_log, update_chat_name } from "../../database"
 import { send_model_request } from "../../model_connection"
 /**
  * XYZ does ZXY
@@ -39,6 +39,19 @@ export const submit_message_handler = async (data: any) => {
         return {
             id: -1,
             reply: interface_status.failure
+        }
+    }
+
+    // update the name of the chat if its new
+    if (new_chat) {
+        if (await update_chat_name(data.chatID, reply.data.new_name) == DBResult.DBSuccess) {
+            return {
+                id: -1,
+                reply: interface_status.failure,
+                data: {
+                    updated_name: true
+                }
+            }
         }
     }
 
