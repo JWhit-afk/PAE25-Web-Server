@@ -10,24 +10,40 @@
 import WebSocket, { WebSocketServer } from "ws"
 import { interface_result, interface_route } from "../../PAE25-Web-Server-Interface/shared_interface"
 import { get_chat_log_handler } from "./handlers/chat_handlers/get_chat_log"
-import { get_user_handler } from "./handlers/user_handler/get_user";
-import { get_user_chats_handler } from "./handlers/user_handler/get_users_chats";
+import { get_student_handler } from "./handlers/student_handlers/get_student";
+import { get_student_chats_handler } from "./handlers/student_handlers/get_students_chats";
 import { add_chat_handler } from "./handlers/chat_handlers/add_chat";
-import { check_username_handler } from "./handlers/user_handler/check_username";
-import { add_user_handler } from "./handlers/user_handler/add_user";
+import { check_username_handler } from "./handlers/check_username";
+import { add_student_handler } from "./handlers/student_handlers/add_student";
 import { submit_message_handler } from "./handlers/model_handlers/submit_message";
+import { add_supervisor_handler } from "./handlers/supervisor_routes/add_supervisor";
+import { verify_supervisor_handler } from "./handlers/supervisor_routes/verify_supervisor";
+import { check_student_user_route } from "./handlers/student_handlers/check_student_user";
+import { add_student_to_supervisor_handler } from "./handlers/supervisor_routes/add_student_to_supervisor";
+import { get_supervisors_students } from "./handlers/supervisor_routes/get_supervisors_students";
+import { get_supervisor_handler } from "./handlers/supervisor_routes/get_supervisor";
 
 // maps the shared interface_route to the function that handles the request
 const interface_route_handlers = new Map<any, any>([
     [interface_route.getChatLog, get_chat_log_handler],
     [interface_route.createChat, add_chat_handler],
 
-    // user routes
-    [interface_route.createUser, add_user_handler],
-    [interface_route.getUser, get_user_handler],
-    [interface_route.getUserChats, get_user_chats_handler],
+    // student routes
+    [interface_route.createStudent, add_student_handler],
+    [interface_route.getStudent, get_student_handler],
+    [interface_route.getStudentChats, get_student_chats_handler],
+    [interface_route.submitModelMessage, submit_message_handler],
+    [interface_route.checkStudentUser, check_student_user_route],
+
+    // supervisor routes
+    [interface_route.createSupervisor, add_supervisor_handler],
+    [interface_route.getSupervisor, get_supervisor_handler],
+    [interface_route.verifySupervisor, verify_supervisor_handler],
+    [interface_route.addStudentToSupervisor, add_student_to_supervisor_handler],
+    [interface_route.getSupervisorStudents, get_supervisors_students],
+
+    // general routes
     [interface_route.checkUsername, check_username_handler],
-    [interface_route.submitModelMessage, submit_message_handler]
 ]);
 
 /**

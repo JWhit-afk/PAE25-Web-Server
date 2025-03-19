@@ -1,14 +1,14 @@
 import {interface_status, interface_result} from "../../../../PAE25-Web-Server-Interface/shared_interface"
-import { DBResult, get_chat_document, get_user_document } from "../../database"
+import { DBResult, get_chat_document, get_student_document } from "../../database"
 /**
  * Gets the array of the users open chats
  * @param data - data.username (string)
  * @returns data.chatIds (array[objectIds]), names (str[])
  */
-export const get_user_chats_handler = async (data: any) => {
+export const get_student_chats_handler = async (data: any) => {
     
     // get doc by username
-    let userDocument = await get_user_document(data.username)
+    let userDocument = await get_student_document(data.username)
 
     // simple existence check
     if (userDocument == DBResult.DBUserNotFound) {

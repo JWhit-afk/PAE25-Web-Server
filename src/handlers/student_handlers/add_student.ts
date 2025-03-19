@@ -1,16 +1,17 @@
 import {interface_status, interface_result} from "../../../../PAE25-Web-Server-Interface/shared_interface"
-import { add_user } from "../../database"
+import { add_student } from "../../database"
 
 // TODO: password is raw -> needs encrypting (possibly with bcrypt?)
 /**
  * Adds user to database, after passing validation tests
- * @param data - data.username, data.password
- * @returns no data / interface success / interface failure w/ reason
+ * @param data - data.name, data.username, data.password
+ * @returns no data / interface success / interface failure
  */
-export const add_user_handler = async (data: any) => {
+export const add_student_handler = async (data: any) => {
     // checks should be done client side -> assume all clear:
 
-    let result = await add_user(data.username, data.password)
+    console.log("adding student")
+    let result = await add_student(data.name, data.username, data.password)
 
     if (result.acknowledged) {
         return {

@@ -40,11 +40,12 @@ const database_initialisation = (async () => {
 
     // creates student table
     .then(async () => {
-        await database.createCollection("user", {
+        await database.createCollection("student", {
             validator: {
                 $jsonSchema: {
                     bsonType: 'object',
                     required: [
+                      'name',
                       'chats',
                       'username',
                       'password'
@@ -57,6 +58,9 @@ const database_initialisation = (async () => {
                         bsonType: 'array',
                         description: 'array of chat ids'
                       },
+                      supervisor: {
+                        bsonType: "objectId",
+                      },
                       username: {
                         bsonType: 'string'
                       },
@@ -68,12 +72,46 @@ const database_initialisation = (async () => {
             }
         })
     })
+
+    // create supervisor table
+    .then(async () => {
+      await database.createCollection("supervisor", {
+          validator: {
+              $jsonSchema: {
+                  bsonType: 'object',
+                  required: [
+                    'name',
+                    'students',
+                    'username',
+                    'password'
+                  ],
+                  properties: {
+                    name: {
+                      bsonType: 'string'
+                    },
+                    students: {
+                      bsonType: 'array',
+                      description: 'array of student ids'
+                    },
+                    username: {
+                      bsonType: 'string'
+                    },
+                    password: {
+                      bsonType: 'string'
+                    }
+                  }
+                }
+          }
+      })
+  })
+
 })();
 
 // enum of the DBCollections -> cleaner and more consistent access than raw string
 const enum DBCollections {
   chats = "chats",
-  user = "user"
+  student = "student",
+  supervisor = "supervisor",
 };
 
 // enum of DB results
@@ -86,9 +124,10 @@ export const enum DBResult {
   DBRecordNotFound
 };
 
-export const add_user = async (username: string, password: string) => {
+export const add_student = async (name: string, username: string, password: string) => {
   await database_initialisation;
-  return database.collection(DBCollections.user).insertOne({
+  return database.collection(DBCollections.student).insertOne({
+      name: name,
       chats: [],
       username: username,
       password: password
@@ -97,14 +136,60 @@ export const add_user = async (username: string, password: string) => {
   .then ((userDocument => userDocument || DBResult.DBUserNotAdded))
 }
 
-export const get_user_document = async (username: string) => {
+export const add_supervisor = async (name: string, username: string, password: string) => {
   await database_initialisation;
-  return database.collection(DBCollections.user).findOne(
+  return database.collection(DBCollections.supervisor).insertOne({
+      name: name,
+      students: [],
+      username: username,
+      password: password
+    }
+  )
+  .then ((userDocument => userDocument || DBResult.DBUserNotAdded))
+}
+
+export const get_student_document = async (username: string) => {
+  await database_initialisation;
+  return database.collection(DBCollections.student).findOne(
     {
       username: username
     }
   )
   .then ((userDocument) => userDocument || DBResult.DBUserNotFound)
+}
+
+export const get_student_document_id = async (id: ObjectId) => {
+  await database_initialisation;
+  return database.collection(DBCollections.student).findOne(
+    {
+      _id: id
+    }
+  )
+  .then ((userDocument) => userDocument || DBResult.DBUserNotFound)
+}
+
+export const get_supervisor_document = async (username: string) => {
+  await database_initialisation;
+  return database.collection(DBCollections.supervisor).findOne(
+    {
+      username: username
+    }
+  )
+  .then ((userDocument) => userDocument || DBResult.DBUserNotFound)
+}
+
+export const add_student_to_supervisor = async (student_id: ObjectId, supervisor_username: string) => {
+  await database_initialisation;
+  console.log(student_id + " " + supervisor_username)
+  let pushop: Document= {
+    "$push": {students: student_id}
+  }
+  return database.collection(DBCollections.supervisor).findOneAndUpdate({
+    username: supervisor_username
+  },
+    pushop
+  )
+  .then ((updatedDoc) => updatedDoc || DBResult.DBDocumentUpdateError)
 }
 
 export const create_new_chat = async (name:string, username: string) => {
@@ -114,13 +199,13 @@ export const create_new_chat = async (name:string, username: string) => {
     name: name,
     chatLog: []
   })
-  // find the user that created it and append the new chat to their list
+  // find the student that created it and append the new chat to their list
   .then((result) => {
     let pushop: Document= {
       "$push": {chats: result.insertedId}
     }
     if (result != null) {
-      database.collection(DBCollections.user).findOneAndUpdate({
+      database.collection(DBCollections.student).findOneAndUpdate({
         username: username
       }, 
       pushop )
