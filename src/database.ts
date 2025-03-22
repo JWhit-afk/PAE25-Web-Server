@@ -47,6 +47,12 @@ const database_initialisation = (async () => {
                     required: [
                       'name',
                       'chats',
+                      'task',
+                      'answer',
+                      'feedback',
+                      'grade',
+                      'model_feedback',
+                      'model_grade',
                       'username',
                       'password'
                     ],
@@ -57,6 +63,30 @@ const database_initialisation = (async () => {
                       chats: {
                         bsonType: 'array',
                         description: 'array of chat ids'
+                      },
+                      task: {
+                        bsonType: 'string',
+                        description: 'The task assigned by the supervisor'
+                      },
+                      answer: {
+                        bsonType: 'string',
+                        description: 'The students answer to the task'
+                      },
+                      feedback: {
+                        bsonType: 'string',
+                        description: 'The supervisor feedback'
+                      },
+                      grade: {
+                        bsonType: 'string',
+                        description: 'The supervisor grade'
+                      },
+                      model_feedback: {
+                        bsonType: 'string',
+                        description: 'The models feedback'
+                      },
+                      model_grade: {
+                        bsonType: 'string',
+                        description: 'The models grade'
                       },
                       supervisor: {
                         bsonType: "objectId",
@@ -129,6 +159,12 @@ export const add_student = async (name: string, username: string, password: stri
   return database.collection(DBCollections.student).insertOne({
       name: name,
       chats: [],
+      task: "",
+      answer: "",
+      feedback: "",
+      grade: "",
+      model_feedback: "",
+      model_grade: "",
       username: username,
       password: password
     }
@@ -166,6 +202,90 @@ export const get_student_document_id = async (id: ObjectId) => {
     }
   )
   .then ((userDocument) => userDocument || DBResult.DBUserNotFound)
+}
+
+export const assign_student_task = async (student_id: string, task) => {
+  await database_initialisation;
+  let result = await database.collection(DBCollections.student).findOneAndUpdate({
+    _id: new ObjectId(student_id)
+  },{
+    "$set": {task: task}
+  })
+  if (result != null) {
+    return DBResult.DBSuccess
+  } else {
+    return DBResult.DBRecordNotFound
+  }
+}
+
+export const submit_student_answer = async (username: string, answer) => {
+  await database_initialisation;
+  let result = await database.collection(DBCollections.student).findOneAndUpdate({
+    username: username
+  },{
+    "$set": {answer: answer}
+  })
+  if (result != null) {
+    return DBResult.DBSuccess
+  } else {
+    return DBResult.DBRecordNotFound
+  }
+}
+
+export const submit_supervisor_feedback = async (student_id: string, feedback) => {
+  await database_initialisation;
+  let result = await database.collection(DBCollections.student).findOneAndUpdate({
+    _id: new ObjectId(student_id)
+  },{
+    "$set": {feedback: feedback}
+  })
+  if (result != null) {
+    return DBResult.DBSuccess
+  } else {
+    return DBResult.DBRecordNotFound
+  }
+}
+
+export const submit_supervisor_grade = async (student_id: string, grade) => {
+  await database_initialisation;
+  let result = await database.collection(DBCollections.student).findOneAndUpdate({
+    _id: new ObjectId(student_id)
+  },{
+    "$set": {grade: grade}
+  })
+  if (result != null) {
+    return DBResult.DBSuccess
+  } else {
+    return DBResult.DBRecordNotFound
+  }
+}
+
+export const submit_model_feedback = async (username: string, feedback) => {
+  await database_initialisation;
+  let result = await database.collection(DBCollections.student).findOneAndUpdate({
+    username: username
+  },{
+    "$set": {model_feedback: feedback}
+  })
+  if (result != null) {
+    return DBResult.DBSuccess
+  } else {
+    return DBResult.DBRecordNotFound
+  }
+}
+
+export const submit_model_grade = async (username: string, grade) => {
+await database_initialisation;
+  let result = await database.collection(DBCollections.student).findOneAndUpdate({
+    username: username
+  },{
+    "$set": {model_grade: grade}
+  })
+  if (result != null) {
+    return DBResult.DBSuccess
+  } else {
+    return DBResult.DBRecordNotFound
+  }
 }
 
 export const get_supervisor_document = async (username: string) => {

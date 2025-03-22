@@ -22,6 +22,11 @@ import { check_student_user_route } from "./handlers/student_handlers/check_stud
 import { add_student_to_supervisor_handler } from "./handlers/supervisor_routes/add_student_to_supervisor";
 import { get_supervisors_students } from "./handlers/supervisor_routes/get_supervisors_students";
 import { get_supervisor_handler } from "./handlers/supervisor_routes/get_supervisor";
+import { get_student_handler_by_id } from "./handlers/student_handlers/get_student_by_id";
+import { assign_student_task_handler } from "./handlers/student_handlers/assign_student_task";
+import { submit_supervisor_feedback_handler } from "./handlers/supervisor_routes/submit_supervisor_feedback";
+import { submit_supervisor_grade_handler } from "./handlers/supervisor_routes/submit_supervisor_grade";
+import { submit_model_marking_handler } from "./handlers/model_handlers/submit_marking";
 
 // maps the shared interface_route to the function that handles the request
 const interface_route_handlers = new Map<any, any>([
@@ -31,9 +36,10 @@ const interface_route_handlers = new Map<any, any>([
     // student routes
     [interface_route.createStudent, add_student_handler],
     [interface_route.getStudent, get_student_handler],
+    [interface_route.getStudentById, get_student_handler_by_id],
     [interface_route.getStudentChats, get_student_chats_handler],
-    [interface_route.submitModelMessage, submit_message_handler],
     [interface_route.checkStudentUser, check_student_user_route],
+    [interface_route.assignStudentTask, assign_student_task_handler],
 
     // supervisor routes
     [interface_route.createSupervisor, add_supervisor_handler],
@@ -41,7 +47,13 @@ const interface_route_handlers = new Map<any, any>([
     [interface_route.verifySupervisor, verify_supervisor_handler],
     [interface_route.addStudentToSupervisor, add_student_to_supervisor_handler],
     [interface_route.getSupervisorStudents, get_supervisors_students],
+    [interface_route.submitSupervisorFeedback, submit_supervisor_feedback_handler],
+    [interface_route.submitSupervisorGrade, submit_supervisor_grade_handler],
 
+    // model routes
+    [interface_route.submitModelMarking, submit_model_marking_handler],
+    [interface_route.submitModelMessage, submit_message_handler],
+    
     // general routes
     [interface_route.checkUsername, check_username_handler],
 ]);
