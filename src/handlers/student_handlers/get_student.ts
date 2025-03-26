@@ -1,7 +1,6 @@
 import {interface_status, interface_result} from "../../../../PAE25-Web-Server-Interface/shared_interface"
-import { DBResult, get_student_document } from "../../database"
+import { DBResult, get_student_document, update_last_login } from "../../database"
 
-// TODO: password is raw -> needs encrypting (possibly with bcrypt?)
 /**
  * Gets users information
  * @param data - data.username, data.password
@@ -27,6 +26,9 @@ export const get_student_handler = async (data: any) => {
             reply: interface_status.userPasswordIncorrect
         }
     }
+
+    // as the password has been confimed -> must be the real user -> update last login
+    await update_last_login(userDoc._id, true)
 
     // if checks clear -> send relevant info linked to user:
     return {

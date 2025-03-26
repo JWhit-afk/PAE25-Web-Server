@@ -27,6 +27,8 @@ import { assign_student_task_handler } from "./handlers/student_handlers/assign_
 import { submit_supervisor_feedback_handler } from "./handlers/supervisor_routes/submit_supervisor_feedback";
 import { submit_supervisor_grade_handler } from "./handlers/supervisor_routes/submit_supervisor_grade";
 import { submit_model_marking_handler } from "./handlers/model_handlers/submit_marking";
+import { delete_supervisor_handler } from "./handlers/supervisor_routes/delete_supervisor";
+import { delete_student_handler } from "./handlers/student_handlers/delete_student";
 
 // maps the shared interface_route to the function that handles the request
 const interface_route_handlers = new Map<any, any>([
@@ -40,6 +42,7 @@ const interface_route_handlers = new Map<any, any>([
     [interface_route.getStudentChats, get_student_chats_handler],
     [interface_route.checkStudentUser, check_student_user_route],
     [interface_route.assignStudentTask, assign_student_task_handler],
+    [interface_route.deleteStudent, delete_student_handler],
 
     // supervisor routes
     [interface_route.createSupervisor, add_supervisor_handler],
@@ -49,6 +52,7 @@ const interface_route_handlers = new Map<any, any>([
     [interface_route.getSupervisorStudents, get_supervisors_students],
     [interface_route.submitSupervisorFeedback, submit_supervisor_feedback_handler],
     [interface_route.submitSupervisorGrade, submit_supervisor_grade_handler],
+    [interface_route.deleteSupervisor, delete_supervisor_handler],
 
     // model routes
     [interface_route.submitModelMarking, submit_model_marking_handler],

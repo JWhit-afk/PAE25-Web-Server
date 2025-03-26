@@ -57,6 +57,9 @@ const database_initialisation = (async () => {
                       'password'
                     ],
                     properties: {
+                      last_login: {
+                        bsonType: 'date'
+                      },
                       name: {
                         bsonType: 'string'
                       },
@@ -116,6 +119,9 @@ const database_initialisation = (async () => {
                     'password'
                   ],
                   properties: {
+                    last_login: {
+                      bsonType: 'date'
+                    },
                     name: {
                       bsonType: 'string'
                     },
@@ -157,9 +163,10 @@ export const enum DBResult {
 export const add_student = async (name: string, username: string, password: string) => {
   await database_initialisation;
   return database.collection(DBCollections.student).insertOne({
+      last_login: new Date(),
       name: name,
       chats: [],
-      task: "",
+      task: "In python, write a small function that will remove all empty items in a list of strings. Then it must print the length of the new list and how many items were removed",
       answer: "",
       feedback: "",
       grade: "",
@@ -175,6 +182,7 @@ export const add_student = async (name: string, username: string, password: stri
 export const add_supervisor = async (name: string, username: string, password: string) => {
   await database_initialisation;
   return database.collection(DBCollections.supervisor).insertOne({
+      last_login: new Date(),
       name: name,
       students: [],
       username: username,
@@ -298,6 +306,14 @@ export const get_supervisor_document = async (username: string) => {
   .then ((userDocument) => userDocument || DBResult.DBUserNotFound)
 }
 
+export const remove_supervisor= async (supervisor_id: ObjectId) => {
+  await database_initialisation;
+  return database.collection(DBCollections.supervisor).findOneAndDelete({
+    _id: new ObjectId(supervisor_id)
+  })
+  .then ((removedDoc) => removedDoc || DBResult.DBDocumentUpdateError)
+}
+
 export const add_student_to_supervisor = async (student_id: ObjectId, supervisor_username: string) => {
   await database_initialisation;
   console.log(student_id + " " + supervisor_username)
@@ -310,6 +326,24 @@ export const add_student_to_supervisor = async (student_id: ObjectId, supervisor
     pushop
   )
   .then ((updatedDoc) => updatedDoc || DBResult.DBDocumentUpdateError)
+}
+
+export const remove_student = async (student_id: ObjectId) => {
+  await database_initialisation;
+  // remove from supervisor
+  let pullop: Document= {
+    "$pull": {students: new ObjectId(student_id)}
+  }
+  await database.collection(DBCollections.supervisor).findOneAndUpdate({
+    students: new ObjectId(student_id)
+  },
+    pullop
+  )
+  // then delete
+  return database.collection(DBCollections.student).findOneAndDelete({
+      _id: student_id
+  })
+  .then ((removedDoc) => removedDoc || DBResult.DBSuccess)
 }
 
 export const create_new_chat = async (name:string, username: string) => {
@@ -374,3 +408,37 @@ export const update_chat_name = async (chatID: ObjectId, new_name: string) => {
     return DBResult.DBRecordNotFound
   }
 }
+
+export const update_last_login = async (userID: ObjectId, student: boolean) => {
+  await database_initialisation;
+  let result
+  if (student) {
+    result = await database.collection(DBCollections.student).findOneAndUpdate({
+      _id: new ObjectId(userID)
+    },{
+      "$set": {last_login: new Date()}
+    })
+  } else {
+    // then a supervisor
+    result = await database.collection(DBCollections.supervisor).findOneAndUpdate({
+      _id: new ObjectId(userID)
+    },{
+      "$set": {last_login: new Date()}
+    })
+  }
+  if (result != null) {
+    return DBResult.DBSuccess
+  } else {
+    return DBResult.DBRecordNotFound
+  }
+}
+
+// runs 1x per day -> removes user that have not logged in for a year
+setTimeout(async () => {
+  await database_initialisation;
+  await database.collection("users").deleteMany({
+    lastLogin: {
+      $lt: (new Date(new Date().setFullYear(new Date().getFullYear() - 1)))
+    }
+  })
+}, 86400000)

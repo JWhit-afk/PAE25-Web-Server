@@ -1,12 +1,12 @@
 import {interface_status, interface_result} from "../../../../PAE25-Web-Server-Interface/shared_interface"
-import { DBResult, get_supervisor_document, update_last_login } from "../../database"
+import { DBResult, get_supervisor_document, remove_student, remove_supervisor, update_last_login } from "../../database"
 
 /**
- * Gets users information
+ * Remove supervisor information from db
  * @param data - data.username, data.password
- * @returns data.name, data.chatIds / interface success / interface failure w/ reason
+ * @returns interface success / interface failure
  */
-export const get_supervisor_handler = async (data: any) => {
+export const delete_supervisor_handler = async (data: any) => {
     
     // check if username is present in DB
     let userDoc = await get_supervisor_document(data.username)
@@ -25,20 +25,13 @@ export const get_supervisor_handler = async (data: any) => {
         }
     }
 
-    // as the password has been confimed -> must be the real user -> update last login
-    await update_last_login(userDoc._id, false)
+    // if checks clear -> perform delete actions
+    // first remove from supervisor list
+    await remove_supervisor(userDoc._id)
 
-    // if checks clear -> send relevant info linked to user:
     return {
         id: -1,
         reply: interface_status.success,
-        data: {
-            id: userDoc._id,
-            name: userDoc.name,
-            studentIds: userDoc.students,
-            username: userDoc.username,
-            chatIds: userDoc.chats
-        }
     }
     
     
