@@ -8,7 +8,7 @@
  */
 
 import WebSocket, { WebSocketServer } from "ws"
-import { interface_result, interface_route } from "../../PAE25-Web-Server-Interface/shared_interface"
+import { interface_result, interface_route } from "../../shared_interface"
 import { get_chat_log_handler } from "./handlers/chat_handlers/get_chat_log"
 import { get_student_handler } from "./handlers/student_handlers/get_student";
 import { get_student_chats_handler } from "./handlers/student_handlers/get_students_chats";
